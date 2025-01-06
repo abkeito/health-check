@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <!-- タイトル -->
+    <div class="title-container">
+        <h1>Excercise Monitor</h1>
+    </div>
+    <div class="container">
+        <!-- 心拍数セクション -->
+        <div class="sensor-container">
+            <div class="heart-rate">
+                <h2>Heart Rate:</h2>
+                <p id="heart-rate">Waiting for data...</p>
+            </div>
+            <div class="acceleration">
+                <h2>Acceleration:</h2>
+                <p id="acceleration">Waiting for data...</p>
+            </div>
+        </div>
+        <!-- メッセージセクション -->
+        <div class="message-container">
+            <p id="data-container">Waiting for data...</p>
+        </div>
+    </div>
+    <script src="/static/scripts.js"></script>
+</body>
+</html>
