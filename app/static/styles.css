@@ -1,31 +1,29 @@
 /* body全体を画面いっぱいに使う */
 body {
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: flex-start; /* 上部に揃える */
+    justify-content: flex-start; /* 上部に揃える */
     height: 100vh; /* 画面の高さを100% */
-    background-color: #f0f0f0;
 }
 
 /* タイトル */
 .title-container {
+    flex-basis: 10%;
     width: 100%;
     text-align: center;
-    margin-bottom: 20px;
+    font-size: larger;
 }
 
 /* コンテナも画面全体を使うように設定 */
 .container {
+    flex-grow: 1; /* 残りの高さを使う */
     width: 100%;
-    height: 90%;
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    padding: 10px; /* 少し余白を追加 */
+    padding: 10px;
+    max-height: 90vh; /* 最大の高さを画面の90%に制限 */
 }
 
 /* センサー情報 */
@@ -35,11 +33,18 @@ body {
     justify-content: space-between;
     flex-basis: 50%;
     height: 100%;
-    margin-bottom: 20px;
 }
 
 .heart-rate, .acceleration {
-    flex-basis: 50%;
+    flex-shrink: 1; /* 高さが可変で伸縮するように */
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold; /* 太字 */
+}
+
+canvas {
+    max-width: 100%;  /* コンテナに合わせてキャンバスの幅を調整 */
+    height: auto;  /* 高さはアスペクト比を保って自動調整 */
 }
 
 /* メッセージ */
@@ -47,5 +52,4 @@ body {
     flex-basis: 50%;
     height: 100%;
     background-color: #fff;
-    padding: 20px;
 }

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/styles.css">
+    <title>Excercise Monitor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- タイトル -->
@@ -14,12 +16,12 @@
         <!-- 心拍数セクション -->
         <div class="sensor-container">
             <div class="heart-rate">
-                <h2>Heart Rate:</h2>
-                <p id="heart-rate">Waiting for data...</p>
+                <p id="heart-rate">心拍数 Waiting for data...</p>
+                <canvas id="heartRateChart" width="900" height="300"></canvas>
             </div>
             <div class="acceleration">
-                <h2>Acceleration:</h2>
-                <p id="acceleration">Waiting for data...</p>
+                <p id="acceleration">運動量 Waiting for data...</p>
+                <canvas id="accelerationChart" width="900" height="300"></canvas>
             </div>
         </div>
         <!-- メッセージセクション -->
@@ -27,6 +29,7 @@
             <p id="data-container">Waiting for data...</p>
         </div>
     </div>
-    <script src="/static/scripts.js"></script>
+    <script src="/static/heart_rate.js"></script>
+    <script src="/static/acceleration.js"></script>
 </body>
 </html>

@@ -1,48 +1,62 @@
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, StreamingResponse
-from fastapi.staticfiles import StaticFiles
-from typing import AsyncGenerator
-import asyncio
-import time
-import requests
-import random
+from pydantic import BaseModel
+import csv
+import uvicorn
+import os
+from datetime import datetime
 
 app = FastAPI()
 
-# ESP8266のIPアドレスとポート番号
-esp_ip = "157.82.202.11"
-esp_port = 80
+# CSVファイルのヘッダを最初に書き込んでおく（1回だけ実行する）
+def init_csv():
+    directory = 'static'
+    file_path = os.path.join(directory, 'heart_rate_data.csv')
 
-def get_random_number():
-    """ESP8266からランダムなデータ（タイムスタンプと心拍数）を取得"""
-    url = f"http://{esp_ip}:{esp_port}/"
+    # 'static' フォルダが存在しない場合は作成する
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # 既存のCSVファイルが存在すれば削除して新しく作成
+    if os.path.exists(file_path):
+        os.remove(file_path)  # ファイルを削除
+    
     try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            return response.text.strip()
-        else:
-            return f"Failed to connect. Status code: {response.status_code}"
-    except requests.exceptions.RequestException as e:
-        return f"An error occurred: {e}"
+        # 新しいファイルを作成してヘッダーを書き込む
+        with open(file_path, mode='w', newline='') as file:  # 'w' modeで書き込む
+            writer = csv.writer(file)
+            writer.writerow(['Minute', 'Second', 'BPM'])  # CSVのヘッダ
+        print(f"CSV file created with header: {file_path}")
+    except Exception as e:
+        print(f"Error initializing CSV: {e}")
 
-async def event_stream() -> AsyncGenerator[str, None]:
-    """1秒ごとにESP8266からデータを取得し、クライアントにストリーム送信"""
-    while True:
-        #data = get_random_number()
-        data = str(random.randint(60, 100))
-        yield f"data: {data}\n\n"
-        await asyncio.sleep(1)
+# 心拍数データの受信モデル
+class HeartRateData(BaseModel):
+    bpm: int
+    time: int
 
-@app.get("/")
-async def index():
-    """クライアントにHTMLページを返す"""
-    with open("templates/index.html", "r") as f:
-        return HTMLResponse(content=f.read(), status_code=200)
+# POSTエンドポイントでデータを受け取る
+@app.post("/data")
+async def receive_data(data: HeartRateData):
+    bpm = data.bpm
+    timestamp = data.time
+    
+    # タイムスタンプを秒単位で取得
+    current_time = datetime.now()  # 現在の時刻を取得
+    minute = current_time.minute
+    second = current_time.second
+    
+    # CSVファイルにデータを追加
+    file_path = os.path.join('static', 'heart_rate_data.csv')
+    with open(file_path, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([minute, second, bpm])  # CSVにMinute, Second, BPMを記録
+    
+    print(f"Received data - Minute: {minute}, Second: {second}, BPM: {bpm}")
+    return {"message": "Data received"}  # クライアントに確認メッセージを返す
 
-@app.get("/events")
-async def stream():
-    """ESP8266からのデータをクライアントにストリームする"""
-    return StreamingResponse(event_stream(), media_type="text/event-stream")
 
-# 静的ファイルの設定
-app.mount("/static", StaticFiles(directory="static"), name="static")
+if __name__ == '__main__':
+    print("Starting server...")
+    init_csv()  # サーバ起動時にCSVファイルを初期化
+    print("CSV file initialized")
+    uvicorn.run(app, host="0.0.0.0", port=8080)  # すべてのIPからアクセス可能にする
